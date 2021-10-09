@@ -1,0 +1,97 @@
+var bingo = ['B', 'I', 'N', 'G', 'O'];
+var letter = bingo[Randomizer.nextInt(0, bingo.length-1)];
+var num = 0;
+var usedNums = [];
+
+function start(){
+    makeCombo();
+    keyDownMethod(combo);
+}
+
+function combo(e){
+    remove(getElementAt(150, 225));
+    remove(getElementAt(150, 150));
+    if(e.keyCode == Keyboard.SPACE){
+        makeCombo();
+    }
+}
+
+function makeCombo(){
+    letter = bingo[Randomizer.nextInt(0, bingo.length-1)];
+    for(var i = 0; i < bingo.length; i++){
+        if(bingo[i] == letter){ 
+            num = Randomizer.nextInt((i*15)+1, 15*(i+1));
+            for(var j = 0; j < usedNums.length; j++){
+                if(num == usedNums[i]){
+                    num = Randomizer.nextInt((i*15)+1, 15*(i+1));
+                }else{
+                    text("game Over", "30pt Comic Sans", 100, 100, Color.red);   
+                }
+            }
+            usedNums.push(num);
+        }
+    }
+    text(letter, "50pt Arial", 150, 150, Color.green);
+    var type = Randomizer.nextInt(0, 1);
+    if(type == 0){
+        text(decimalToBinary(num), "50pt Arial", 70, 225, Color.blue);
+    }else{
+        text(decimalToHex(num), "50pt Arial", 150, 225, Color.orange);
+    }
+    println(letter + " " + num);
+}
+
+function check(num, arr){
+    for(var i = 0; i < arr.length; i++){
+        if(num == arr[i]){
+            return true;
+        }
+    }
+    return false;
+}
+
+function decimalToBinary(num){
+    var binary = "";
+    for(var i = 7; i >= 0; i--){
+        if(num < Math.pow(2, i)){
+            binary += "0";
+        }else{
+            binary += "1";
+            num -= Math.pow(2, i);
+        }
+    }
+    return binary;
+}
+
+function decimalToHex(num){
+    var binary = decimalToBinary(num);
+    var doubleDigits = ['A', 'B', 'C', 'D', 'E', 'F'];
+    var left = binary.substring(0, 4);
+    var right = binary.substring(4, 8);
+    var leftHex = 0;
+    var rightHex = 0;
+    var exp = 0;
+    for(var i = 3; i >= 0; i--){
+        if(left.charAt(i) == '1'){
+            leftHex += Math.pow(2, exp);
+        }
+        if(right.charAt(i) == '1'){
+            rightHex += Math.pow(2, exp);
+        }
+        exp++;
+        if(leftHex >= 10){
+            leftHex = doubleDigits[leftHex - 10];
+        }
+        if(rightHex >= 10){
+            rightHex = doubleDigits[rightHex - 10];
+        }
+    }
+    return leftHex + "" + rightHex;
+}
+
+function text(label, font, x, y, color){
+    var txt = new Text(label, font);
+    txt.setPosition(x, y);
+    txt.setColor(color);
+    add(txt);
+}

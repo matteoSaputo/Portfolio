@@ -1,0 +1,54 @@
+var MIN = Randomizer.nextInt(0, 49);
+var MAX = Randomizer.nextInt(51, 100);
+var num = Randomizer.nextInt(MIN, MAX);
+var tries = 1;
+var maxGuesses = 10; 
+ 
+ 
+function start() {
+    println("Welcome to the Guessing Game!");
+    println("Your task is to guess a number between " + MIN + " and " + MAX + ":");
+    var guess = readInt("Please enter your guess between " + MIN + " and " + MAX + ":"); //the user is asked for a guess                            
+    while(guess != num && tries < maxGuesses)              //while the guess is incorrect, the compiter will say if the                      
+    {                                //guess is too high or too low
+        range(guess);
+        guess = readInt("Please enter your guess between " + MIN + " and " + MAX);
+    }
+    if(tries == maxGuesses){
+        text("Game Over", "30pt Arial", 50, 150, Color.black);
+        text("Too Many Guesses! ", "18pt Arial", 25, 200, Color.black);
+    }else{
+        text("Congratulations!", "30pt Arial", 50, 150, Color.black);
+        text("You guessed the secret number! ", "18pt Arial", 25, 200, Color.black);
+        text("It took you " + tries + " tries", "18pt Arial", 50, 250, Color.black);
+    }
+}
+
+//this function prints too high if guess is greater than num
+//and too Low of guess s less than num
+function range(guess)
+{
+    tries++;
+    if(guess > MAX || guess < MIN)
+    {
+        println("That is not in range.");
+    }
+    else
+    {
+        if(guess > num)
+        {
+            println("Too High");
+        }
+        else if(guess < num)
+        {
+            println("Too Low");
+        }
+    }    
+}   
+
+function text(label, font, x, y, color){
+    var txt = new Text(label, font);
+    txt.setPosition(x, y);
+    txt.setColor(color);
+    add(txt);
+}

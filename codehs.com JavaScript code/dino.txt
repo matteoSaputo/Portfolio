@@ -1,0 +1,90 @@
+var PLAYER_SIZE = 25;
+var gravitySpeed = 10;
+var jumpSpeed = -12;
+var jumping = false;
+var gravityRule = true;
+var points = 0;
+rect(getWidth(), getHeight()/2, 0, getHeight()/2);
+rect(PLAYER_SIZE, PLAYER_SIZE, 25, 25);
+rect(15, 30, getWidth()-15, getHeight()/2 - 30);
+
+var player = getElementAt(25, 25);
+var wall = getElementAt(getWidth()-15, getHeight()/2 - 30);
+
+function start(){
+    text("Click Screen to Jump", "10pt Arial", 0, 10, Color.blue);
+    text("Score: " + points, "10pt Arial", 200, 10, Color.green);
+    setTimer(game, 50);
+}
+
+function game(){
+    obstacle();
+    if(gravityRule == true){
+        gravity();
+    }
+    mouseClickMethod(jump);
+}
+
+function jump(){
+    jumpSpeed = -12;
+    jumping = true;
+    gravityRule = false;
+    setTimer(jump2, 35);
+}
+
+function jump2(){
+    if(jumping == true){
+        player.move(0, jumpSpeed);
+    }
+    jumpSpeed += 1;
+    if(player.getY() + PLAYER_SIZE+1 >= getHeight()/2){
+        gravityRule = true;
+        jumpSpeed = 0;
+    }
+}
+
+function gravity(){
+    var x = getElementAt(player.getX(), player.getY() + PLAYER_SIZE+1);
+    if(x == null){
+        player.move(0, gravitySpeed);
+    }
+    if(jumping == true && player.getY() + PLAYER_SIZE+1 >= getHeight()/2){
+        stopTimer(jump2);
+        jumping = false;
+    }
+}
+
+function obstacle(){
+    wall.move(-10, 0);
+    if(wall.getX() < -15){
+        wall.setPosition(getWidth()-15, getHeight()/2 - 30);
+        points++;
+        remove(getElementAt(200, 10));
+        text("Score: " + points, "10pt Arial", 200, 10, Color.green);
+    }
+    var x = getElementAt(wall.getX() - 1, wall.getY() + 15);
+    var y = getElementAt(wall.getX() + 16, wall.getY() + 15);
+    var z = getElementAt(wall.getX() - 7, wall.getY() - 1);
+    if(x == player || y == player || z == player){
+        gameOver();
+    }
+}
+
+function gameOver(){
+    stopTimer(game);
+    text("Game Over", "50pt Arial", 30, 100, Color.black);
+    text("(You hit the wall)", "20pt Arial", 30, 150, Color.black);
+}
+
+function text(label, font, x, y, color){
+    var txt = new Text(label, font);
+    txt.setPosition(x, y);
+    txt.setColor(color);
+    add(txt);
+}
+
+function rect(length, width, x, y){
+    var rect = new Rectangle(length, width);
+    rect.setPosition(x, y);
+    add(rect);
+}

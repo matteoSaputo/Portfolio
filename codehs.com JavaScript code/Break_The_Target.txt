@@ -1,0 +1,221 @@
+var RADIUS = 40;
+var RADIUSTWO = RADIUS - 10;
+var RADIUSTHREE = RADIUS - 20;
+var RADIUSFOUR = RADIUS - 30;
+var TargetOne = new Circle(RADIUS);
+var TargetTwo = new Circle(RADIUSTWO);
+var TargetThree = new Circle(RADIUSTHREE);
+var TargetFour = new Circle(RADIUSFOUR);
+var txt;
+var points = 0;
+var HORIZON = getHeight() - getHeight()/4;
+var shooter;
+var barrel;
+var ball;
+var box;
+var shot = false;
+var lvl = 1;
+var goal = 1000;
+var day = true;
+
+function start(){
+	startScreen();
+}
+
+function startScreen(){
+    background();
+    text("Welcome to Break The Target!", "22pt Arial", 5, 30, Color.red);
+    text("Your objective is to hit the moving ", "15pt Arial", 50, 120, Color.black);
+    text("target for points. ", "15pt Arial", 50, 140, Color.black);
+    text("Score a given amount of points to", "15pt Arial", 50, 170, Color.black);
+    text("continue.", "15pt Arial", 50, 190, Color.black);
+    text("Click mouse to shoot.", "15pt Arial", 50, 220, Color.black);
+    circle(4, 40, 113, Color.black);
+    circle(4, 40, 163, Color.black);
+    circle(4, 40, 213, Color.black);
+    box = new Rectangle(200, 80);
+    box.setColor(Color.yellow);
+    box.setPosition(getWidth()/2 - 100, 325);
+    add(box);
+    text("Click Here ", "20pt Times New Roman", getWidth()/2 -60, 360, Color.red);
+    text("To Play ", "20pt Times New Roman", getWidth()/2 -50, 385, Color.red);
+    mouseClickMethod(begin);
+}
+
+function begin(e){
+    if(e.getX() > box.getX()){
+        if(e.getX() < box.getX() + 200){
+            if(e.getY() > box.getY()){
+                if(e.getY() < box.getY() + 80){
+                    level();
+                }
+            }
+        }
+    }
+}
+
+function level(){
+    if(day = false){
+        day = true;
+    }else{
+        day = false;
+    }
+    background();
+    text("Click Anywhere to Continue", "20pt Arial", 30, 300, Color.black);
+    text("Level " + lvl, "40pt Arial", 120, 175, Color.red);
+    text("Get " + goal + " Points!", "40pt Arial,", 0, 230, Color.red);
+    mouseClickMethod(game);
+}
+
+function game(){
+    background();
+    points = 0;
+    text("Points: " + points, "30pt Arial", 0, 30, Color.black);
+    shooter = new Circle(30);
+    shooter.setPosition(getWidth()/2, getHeight() - getHeight()/7);
+    add(shooter);
+    barrel = new Rectangle(60, 60);
+    barrel.setPosition(shooter.getX()-30, shooter.getY()-60);
+    add(barrel);
+    ball = new Circle(20);
+    ball.setPosition(barrel.getX()+30, barrel.getY());
+    ball.setColor(Color.orange);
+    add(ball);
+    cannon();
+	setTimer(randomTarget, 2000);
+	randomTarget();
+}
+
+function background(){
+    if(day = true){
+        square(getWidth(), getHeight(), 0, 0, Color.cyan);
+    }else{
+        square(getWidth(), getHeight(), 0, 0, Color.black);
+    }
+    square(getWidth(), getHeight()/4, 0, HORIZON, Color.green);
+    circle(80, 0, 0, Color.yellow);
+    cloud(300, 115, Color.white);
+    cloud(100, 160, Color.white);
+}
+
+function cloud(x, y, color){
+    circle(20, x, y, color);
+    circle(20, x-20, y, color);
+    circle(20, x+20, y, color);
+    circle(20, x-40, y, color);
+    circle(20, x+40, y, color);
+    circle(20, x-20, y-20, color);
+    circle(20, x-20, y+20, color);
+    circle(20, x, y-20, color);
+    circle(20, x, y+20, color);
+    circle(20, x+20, y-20, color);
+    circle(20, x+20, y+20, color);
+}
+
+function victoryScreen(){
+    stopTimer(randomTarget);
+    background();
+    lvl++;
+    goal = goal + 1000;
+    text("Victory!!!", "50pt Arial", 75, 200, Color.purple);
+    text("Click for Next Level", "25pt Arial", 50, 280, Color.black);
+    mouseClickMethod(level);
+}
+
+function cannon(){
+    mouseMoveMethod(move);
+    mouseClickMethod(shoot);
+    hit();
+}
+
+function move(e){
+    shooter.setPosition(e.getX(), getHeight() - getHeight()/7);
+    barrel.setPosition(shooter.getX()-30, shooter.getY()-60);
+    if(shot == false){
+        ball.setPosition(barrel.getX()+30, barrel.getY());
+    }
+}
+
+function shoot(){
+    if(shot == false){
+        setTimer(moveBall, 5);
+        shot = true;
+    }else{
+        ball.setPosition(barrel.getX()+30, barrel.getY());
+    }
+}
+
+function moveBall(){
+    up(ball);
+    hit();
+}
+
+function up(object){
+    object.move(0, -15);
+}
+
+function square(width, height, x, y, color) {
+    var rect = new Rectangle(width, height);
+    rect.setPosition(x, y);
+    rect.setColor(color);
+    add(rect);
+}
+
+function circle(radius, x, y, color){
+    var circle = new Circle(radius);
+    circle.setPosition(x, y);
+    circle.setColor(color);
+    add(circle);
+}
+
+function text(label, font, x, y, color){
+    txt = new Text(label, font);
+    txt.setPosition(x, y);
+    txt.setColor(color);
+    add(txt);
+}
+
+function hit(){
+    if(ball.getX() > TargetFour.getX() - RADIUS){
+        if(ball.getX() < TargetFour.getX() + RADIUS){
+            if(ball.getY() > TargetFour.getY() - RADIUS){
+                if(ball.getY() < TargetFour.getY() + RADIUS){
+                    points = points + 100;
+                    randomTarget();
+                    stopTimer(moveBall);
+                    shot = false;
+                    ball.setPosition(barrel.getX()+30, barrel.getY());
+                }
+            }
+        }
+    }
+    if(ball.getY() < 0){
+        stopTimer(moveBall);
+        shot = false;
+        ball.setPosition(barrel.getX()+30, barrel.getY());
+    }
+    if(points >= goal){
+	    victoryScreen();
+	}
+}
+
+function target(x, y){
+    TargetOne.setPosition(x, y);
+    TargetOne.setColor(Color.red);
+    add(TargetOne);
+    TargetTwo.setPosition(x, y);
+    TargetTwo.setColor(Color.white);
+    add(TargetTwo);
+    TargetThree.setPosition(x, y);
+    TargetThree.setColor(Color.red);
+    add(TargetThree);
+    TargetFour.setPosition(x, y);
+    TargetFour.setColor(Color.white);
+    add(TargetFour);
+}
+
+function randomTarget(){
+    target(Randomizer.nextInt(RADIUS, getWidth()-RADIUS), 
+        Randomizer.nextInt(RADIUS, HORIZON-150));
+    txt.setText("Points: " + points);
+}

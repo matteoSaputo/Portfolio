@@ -1,0 +1,155 @@
+/* Constants for bricks */
+var NUM_ROWS = 8;
+var BRICK_TOP_OFFSET = 50;
+var BRICK_SPACING = 2;
+var NUM_BRICKS_PER_ROW = 10;
+var BRICK_HEIGHT = 10;
+var SPACE_FOR_BRICKS = getWidth() - (NUM_BRICKS_PER_ROW + 1) * BRICK_SPACING;
+var BRICK_WIDTH = SPACE_FOR_BRICKS / NUM_BRICKS_PER_ROW;
+
+/* Constants for ball and paddle */
+var PADDLE_WIDTH = 80;
+var PADDLE_HEIGHT = 15;
+var PADDLE_OFFSET = 10;
+
+var BALL_RADIUS = 15;
+var ball;
+var dx = 4;
+var dy = 4;
+var pad;
+var moving = true;
+var losses = 0;
+var maxLives = 3;
+var counter = 0;
+var maxBricks = NUM_ROWS * NUM_BRICKS_PER_ROW;
+var points = 0;
+var score;
+var lives2 = maxLives;
+var lives;
+
+function start(){
+	bricks();
+	ball = new Circle(BALL_RADIUS);
+	ball.setPosition(getWidth()/2, getHeight()/2);
+	add(ball);
+	setTimer(draw, 10);
+	pad = new Rectangle(PADDLE_WIDTH, PADDLE_HEIGHT);
+	pad.setPosition(getWidth()/2 - PADDLE_WIDTH/2, 
+	(getHeight() - PADDLE_OFFSET) - PADDLE_HEIGHT);
+	add(pad);
+	mouseMoveMethod(paddle);
+	score = new Text("Points: " + points, "30pt Ariel");
+	score.setPosition(0, score.getHeight());
+	add(score);
+	lives = new Text("Lives: " + lives2, "30pt Ariel");
+	lives.setPosition(getWidth() - lives.getWidth(), 
+    lives.getHeight());
+	add(lives);
+}
+
+function message(label, color){
+    var text = new Text(label);
+    text.setPosition(getWidth()/2 - text.getWidth()/2, 
+                getHeight()/2 - text.getHeight()/2);
+    text.setColor(color);
+    add(text);
+}
+
+function bricks(){
+    for(var x = 0; x < NUM_ROWS; x++){
+        for(var i = 0; i < NUM_BRICKS_PER_ROW; i++){
+            var brick = new Rectangle(BRICK_WIDTH, BRICK_HEIGHT);
+            brick.setPosition(BRICK_SPACING + 
+            ((BRICK_WIDTH+BRICK_SPACING) * i), 
+            BRICK_TOP_OFFSET + ((BRICK_HEIGHT+BRICK_SPACING) * x));
+            add(brick);
+            if(x == 0 || x == 1){
+                brick.setColor(Color.red);
+            }else if(x == 2 || x == 3){
+                brick.setColor(Color.orange);
+            }else if(x == 4 || x == 5){
+                brick.setColor(Color.green);
+            }else if(x == 6 || x == 7){
+                brick.setColor(Color.blue);
+            }
+        }
+    }
+}
+
+function paddle(e){
+    pad.setPosition(ball.getX() - pad.getWidth()/2, 
+    (getHeight() - PADDLE_OFFSET) - PADDLE_HEIGHT);
+}
+
+function draw(){
+	checkWalls();
+	ball.move(dx, dy);
+}
+
+function checkWalls(){
+	var bottom = getElementAt(ball.getX(), 
+	            ball.getY() + ball.getRadius());
+	var top = getElementAt(ball.getX(), 
+	            ball.getY() - ball.getRadius());
+	var left = getElementAt(ball.getX() - ball.getRadius() , 
+	            ball.getY());
+	var right = getElementAt(ball.getX() + ball.getRadius(), 
+	            ball.getY());
+	var bottomLeft = getElementAt(ball.getX() - ball.getRadius(), 
+	                ball.getY() + ball.getRadius());
+	var bottomRight = getElementAt(ball.getX() + ball.getRadius(), 
+	                ball.getY() + ball.getRadius());
+	var topLeft = getElementAt(ball.getX() - ball.getRadius(), 
+	                ball.getY() - ball.getRadius());
+	var topRight = getElementAt(ball.getX() + ball.getRadius(), 
+	                ball.getY() - ball.getRadius());
+	var elem = top || bottom || left || right || topRight || 
+	            topLeft || bottomRight || bottomLeft;
+	
+	if(ball.getX() + ball.getRadius() > getWidth()){
+		dx = -dx;
+	}
+	if(ball.getX() - ball.getRadius() < 0){
+		dx = -dx;
+	}
+	if(ball.getY() + ball.getRadius() > getHeight()){
+		ball.setPosition(getWidth()/2, getHeight()/2);
+		stopTimer(draw);
+		moving = false;
+		mouseClickMethod(restart);
+		losses++;
+		points--
+		lives2--
+		lives.setText("Lives: " + lives2);
+	}
+	if(ball.getY() - ball.getRadius() < 0){
+		dy = -dy;
+	}
+	if(elem == pad){
+	    dy = -Math.abs(dy);
+	}
+	if(elem != null && elem != pad 
+	        && elem != score && elem != lives){
+	    remove(elem);
+	    counter++;
+	    points++
+	    score.setText("Points: " + points);
+	    dy = -dy
+	}
+	if(losses == maxLives){
+	    stopTimer(draw);
+	    remove(pad);
+	    message("You Lose :(", Color.red);
+	}
+	if(counter == maxBricks){
+	    stopTimer(draw);
+	    message("You Win! :)", Color.green);
+	}
+}
+
+function restart(e){
+    if(moving == false){
+        setTimer(draw, 15);
+        moving = true;
+    }
+}

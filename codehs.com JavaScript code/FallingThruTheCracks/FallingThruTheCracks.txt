@@ -1,0 +1,115 @@
+var player;
+var PLAYER_SIZE = 30;
+var x = 8;
+var y = 0;
+var leftWall;
+var rightWall;
+var runs = -1;
+var maxRuns = 5;
+
+function start(){   
+    player = new Rectangle(PLAYER_SIZE, PLAYER_SIZE);
+    player.setColor(Color.green);
+    player.setPosition(50, 50);
+    add(player);
+    rectColor(5, getHeight(), Color.red, 0, 0);
+    rectColor(5, getHeight(), Color.red, getWidth()-5, 0);
+    leftWall = getElementAt(0, 0);
+    rightWall = getElementAt(getWidth(), 0);
+    obs();
+    setTimer(move, 50);
+}
+
+function move(){
+    keyDownMethod(direction);
+    var elemLeft = getElementAt(player.getX() - 1, player.getY() + PLAYER_SIZE/2);
+    var elemRight = getElementAt(player.getX() + PLAYER_SIZE + 1, player.getY() + PLAYER_SIZE/2);
+    var elemBottom = getElementAt(player.getX() + PLAYER_SIZE/2, player.getY() + PLAYER_SIZE);
+    if(elemLeft == null && elemRight == null){ 
+        player.move(x, y);
+    }else{
+        if(elemLeft == leftWall || elemRight == rightWall){
+            gameOver(false);
+        }
+    }
+    gravity();
+    if(player.getX() > getWidth()){
+        player.setPosition(getWidth() - PLAYER_SIZE - 1, player.getY());
+        x = 0;
+    }
+    if(player.getX() < 0){
+        player.setPosition(0 + PLAYER_SIZE + 1, player.getY());
+        x = 0;
+    }
+    if(player.getY() + PLAYER_SIZE >= getHeight()){
+        player.setPosition(player.getX(), 0);
+        for(var i = 1; i <= 4; i++){
+            var elemLeft = getElementAt(0, i*100);
+            remove(elemLeft);
+            var elemRight = getElementAt(getWidth(), i*100);
+            remove(elemRight);
+        }
+        obs();
+    }
+}
+
+function gravity(){
+    var elemLeft = getElementAt(player.getX(), player.getY() + PLAYER_SIZE+1);
+    var elemRight = getElementAt(player.getX() + PLAYER_SIZE, player.getY() + PLAYER_SIZE+1);
+    if(elemLeft == null && elemRight == null){
+        player.move(0, 10);
+    }
+}
+
+function direction(e){
+    if(e.keyCode == Keyboard.LEFT){
+        x = -8;  
+    }
+    if(e.keyCode == Keyboard.RIGHT){
+        x = 8;    
+    }
+}
+
+function obs(){
+    for(var i = 1; i <= 4; i++){
+        var leftLength = Randomizer.nextInt(0, getWidth() - PLAYER_SIZE*2);
+        var leftWall = new Rectangle(leftLength, 5);
+        var rightLength = getWidth() - (leftLength + PLAYER_SIZE*2); 
+        var rightWall = new Rectangle(rightLength, 5);
+        rect(leftLength, 5, 0, i*100);
+        rect(rightLength, 5, leftLength + PLAYER_SIZE*2, i*100);
+    }
+    runs++;
+    if(runs == maxRuns){
+        gameOver(true);
+    }
+}
+
+function gameOver(beaten){
+    if(beaten == true){
+        stopTimer(move);
+        rectColor(getWidth(), getHeight(), Color.green, 0, 0);
+        text("You Won!", "50pt Arial", getWidth()/2 - 150, getHeight()/2, Color.white);
+    }else{
+        stopTimer(move);
+        rect(getWidth(), getHeight(), 0, 0);
+        text("You Lose!", "50pt Arial", getWidth()/2 - 150, getHeight()/2, Color.white);
+    }
+}
+function text(label, font, x, y, color){
+    var txt = new Text(label, font);
+    txt.setPosition(x, y);
+    txt.setColor(color);
+    add(txt);
+}
+function rectColor(length, width, color, x, y){
+    var rect = new Rectangle(length, width);
+    rect.setColor(color);
+    rect.setPosition(x, y);
+    add(rect);
+}
+function rect(length, width, x, y){
+    var rect = new Rectangle(length, width);
+    rect.setPosition(x, y);
+    add(rect);
+}

@@ -1,0 +1,20 @@
+var WALL_LENGTH = 200;
+var PLAYER_SIZE = 30;
+
+function start(){
+    obs();
+    //setTimer(obs, 500);   
+}
+
+function obs(){
+    for(var i = 1; i <= 4; i++){
+        var leftLength = Randomizer.nextInt(0, getWidth() - PLAYER_SIZE*2);
+        var leftWall = new Rectangle(leftLength, 5);
+        leftWall.setPosition(0, i*100);
+        add(leftWall);
+        var rightLength = getWidth() - (leftLength + PLAYER_SIZE*2); 
+        var rightWall = new Rectangle(rightLength, 5);
+        rightWall.setPosition(leftLength + PLAYER_SIZE*2, i*100);
+        add(rightWall);
+    }
+}
